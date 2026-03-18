@@ -2,6 +2,18 @@
 
 Create a new skill through an interactive CLI-style flow.
 
+## Philosophy
+
+A skill should define **behavior**, not just store documentation.
+
+- A good skill tells the agent **when** to use it
+- A good skill tells the agent **what tools** to use  
+- A good skill defines the **workflow**
+- A good skill specifies the **expected output**
+- A good skill knows its **constraints**
+
+Static documentation has little value - the agent can fetch that itself. The skill's value is in **encoding the behavior pattern**.
+
 ## Quick Start
 
 ```
@@ -16,16 +28,35 @@ Choice [1]:
 
 ## Flow
 
-1. Choose guidance mode (1 or 2)
-2. Answer questions one by one
-3. Confirm summary
-4. Confirm file creation
-5. Get activation instructions
+1. Choose guidance mode
+2. Define the task (what problem to solve)
+3. Define trigger conditions (when to use)
+4. Define required tools
+5. Define workflow (step by step)
+6. Define expected output
+7. Define constraints
+8. (Optional) Fetch docs and analyze
+9. Confirm and create
 
-## Mode
+## Key Change
 
-- **Quick**: Minimal questions, sensible defaults
-- **Full**: More options to configure
+The skill now focuses on **behavior extraction**, not documentation storage.
+
+When you provide a documentation URL:
+1. It fetches the content
+2. **Analyzes and extracts behavioral patterns**
+3. Generates a skill that tells the agent:
+   - When to trigger
+   - What tools to use
+   - The exact workflow
+   - Expected output
+   - Constraints
+
+## Output
+
+Creates:
+- `SKILL.md` - Behavioral definition (not static docs)
+- `README.md` - Human-readable usage guide
 
 ## Compatible Agents
 
@@ -34,17 +65,3 @@ Works with any AgentSkills-compatible agent:
 - Claude Code
 - Codex
 - Pi
-- Other agents with skill support
-
-## Output
-
-Creates in your chosen location:
-- `SKILL.md` (AgentSkills format)
-- `README.md` (human-readable)
-
-## Activation
-
-After creation, the agent shows:
-- Where the skill was written
-- How to activate it (restart or refresh)
-- A test prompt to try

@@ -1,11 +1,23 @@
 ---
 name: create-skill
-description: Create a new skill through a guided conversation. Use when a user wants help authoring a skill from scratch, choosing between quick or full guidance, collecting required and optional skill details, generating a standard skill folder with SKILL.md and README.md, and explaining how to make the new skill take effect.
+description: Create a new skill through a guided conversation. Use when a user wants help authoring a skill from scratch, choosing between quick or full guidance, analyzing documentation to extract behavior patterns, generating a functional skill with proper workflow, and explaining how to make the new skill take effect.
 ---
 
 # Create Skill
 
 Guide the user through creating a new skill from scratch.
+
+## Core Philosophy
+
+A skill should define **behavior**, not just store documentation.
+
+- A good skill tells the agent **when** to use it
+- A good skill tells the agent **what tools** to use
+- A good skill defines the **workflow** (in what order)
+- A good skill specifies the **expected output**
+- A good skill knows its **constraints**
+
+Static documentation has little value - the agent can fetch that itself. The skill's value is in **encoding the behavior pattern**.
 
 ## Interaction Rules
 
@@ -33,18 +45,20 @@ Guide the user through creating a new skill from scratch.
 Follow these steps in order:
 
 1. Prompt for mode selection (1 or 2).
-2. Prompt for skill purpose.
-3. Prompt for trigger style.
-4. Prompt for dependency type.
-5. Prompt for install location.
-6. Prompt for skill name.
-7. Prompt for additional files (if Full mode).
-8. Prompt for content sources (if references/scripts selected).
-9. Show summary.
-8. Show preview.
-9. Prompt for confirmation.
-10. Write files.
-11. Show completion with next steps.
+2. Prompt for skill purpose (the task it solves).
+3. Prompt for trigger conditions (when to use).
+4. Prompt for required tools.
+5. Prompt for workflow steps.
+6. Prompt for expected output.
+7. Prompt for constraints.
+8. Prompt for install location.
+9. Prompt for skill name.
+10. (Optional) Fetch and analyze documentation.
+11. Show summary.
+12. Show preview.
+13. Prompt for confirmation.
+14. Write files.
+15. Show completion with next steps.
 
 ## Step 1: Mode Selection
 
@@ -64,55 +78,116 @@ Choice [1]:
 
 ## Step 2: Skill Purpose
 
-In Quick mode, after mode is selected, ask:
+Ask:
 
 ```
-What should this skill do?
+What task does this skill solve?
 ```
 
-Accept any natural language answer. Extract the core task from their response.
+Accept any natural language answer. Extract the core task.
 
-## Step 3: Trigger Style
+Examples:
+- "Deploy a static blog to GitHub Pages"
+- "Convert images to different formats"
+- "Query and analyze database schemas"
 
-After purpose is captured, ask:
+## Step 3: Trigger Conditions
+
+After purpose, ask:
 
 ```
-How do users trigger it?
+When should the agent use this skill?
 
-1) Chat naturally
-2) As a command (/)
-3) Tool dispatch (direct to tool)
-4) Not sure
+1) User explicitly asks for it
+2) When user mentions specific keywords
+3) When certain conditions are met
+4) Not sure / I'll define later
 
 Choice [1]:
 ```
 
-If user chooses 3 (Tool dispatch), then ask:
+If user chooses 2 or 3, ask for the specific trigger details.
+
+## Step 4: Required Tools
+
+After trigger, ask:
 
 ```
-Tool name to dispatch to:
-```
+What tools does this skill need?
 
-Accept the tool name. This is required for tool dispatch mode.
-
-## Step 4: Dependency Type
-
-After trigger style, ask:
-
-```
-Does it need external tools?
-
-1) No extra dependency
-2) Built-in tools
-3) Local CLI tool
-4) External API
+1) Built-in tools only
+2) External CLI commands
+3) API calls
+4) Combination of above
 
 Choice [1]:
 ```
 
-## Step 5: Install Location
+If user chooses 2 or 3, ask:
+- "Which CLI commands? (comma separated)"
+- "Which APIs? (describe the service)"
 
-After dependency type, ask:
+## Step 5: Workflow
+
+After tools, ask:
+
+```
+What is the workflow? (describe in order)
+
+1) I'll describe step by step
+2) Generate from documentation
+3) Use a common pattern
+
+Choice [1]:
+```
+
+If user chooses 1, ask them to describe each step.
+
+If user chooses 2, proceed to Step 10 (fetch documentation).
+
+If user chooses 3, present common patterns:
+- "init → configure → run"
+- "check prerequisites → setup → execute → verify"
+- "collect input → process → output"
+
+## Step 6: Expected Output
+
+After workflow, ask:
+
+```
+What should this skill produce?
+
+1) Files (config, code, etc.)
+2) Command output
+3) API response
+4) Combination
+
+Choice [1]:
+```
+
+Ask for specific output format details.
+
+## Step 7: Constraints
+
+After output, ask:
+
+```
+Are there any constraints?
+
+1) No constraints
+2) OS limitations
+3) Required environment variables
+4) Configuration requirements
+5) I'll specify
+
+Choice [1]:
+```
+
+If user chooses 2-5, gather the constraint details.
+
+## Step 8: Install Location
+
+After constraints, ask:
 
 ```
 Where to install?
@@ -123,7 +198,7 @@ Where to install?
 Choice [1]:
 ```
 
-## Step 6: Skill Name
+## Step 9: Skill Name
 
 After install location, ask:
 
@@ -134,185 +209,90 @@ Skill name (lowercase, hyphenated):
 - Propose a name based on the skill purpose if user is unsure.
 - Validate format (lowercase, digits, hyphens only).
 
-## Step 8: Additional Files (Full Mode)
+## Step 10: Fetch and Analyze Documentation (Optional)
 
-After skill name, in Full mode, ask:
-
-```
-Additional files:
-
-1) None (SKILL.md + README.md only)
-2) With references/ (API docs, config examples)
-3) With scripts/ (helper scripts)
-4) With examples/ (sample files)
-5) With templates/ (reusable templates)
-6) With bin/ (executable files)
-7) With license.txt
-8) Full (all of the above)
-
-Choice [1]:
-```
-
-If user chooses 2-8, ask what specific content they need.
-
-For references:
-- "What reference docs? (e.g., API reference, config guide, CLI usage)"
-- Generate markdown files with realistic templates based on the skill's purpose
-- References are commonly used to document configuration options, API parameters, CLI commands, etc.
-
-For scripts:
-- "What helper scripts? (e.g., install, setup, run)"
-- Accept comma-separated list or natural language
-
-For examples:
-- "What example files? (e.g., config, input, output)"
-- Accept comma-separated list or natural language
-
-For templates:
-- "What template files? (e.g., prompt template, output template)"
-- Accept comma-separated list or natural language
-
-Generate meaningful placeholder files based on user's needs, not just empty directories.
-
-## Step 8b: Content Sources (Full Mode)
-
-If user selected references/ or scripts/, ask where to get the content:
+If user chose to generate workflow from documentation in Step 5:
 
 ```
-Where should I get the content from?
+Where is the documentation?
 
-1) I'll write it myself
-2) Fetch from URL
-3) Clone from GitHub
-4) Copy from local path
-
-Choice [1]:
+1) Enter URL
+2) GitHub repository
+3) Local path
 ```
 
-### If user chooses 2 (Fetch from URL):
+After getting the source:
+- Fetch the documentation
+- **Analyze and extract**:
+  - Installation commands
+  - CLI usage and options
+  - Configuration parameters
+  - Common workflows
+  - Best practices
+  - Limitations
+- **Generate behavior** from the analysis:
+  - When to trigger
+  - What tools to use
+  - Step-by-step workflow
+  - Expected output format
+  - Constraints
 
-Ask for the URL(s):
-```
-Enter URL(s) to fetch from (comma separated):
-```
+Do NOT just copy the documentation. Transform it into **behavioral instructions**.
 
-Then use the available tools (web_fetch) to:
-- Fetch the content from each URL
-- Extract key information (CLI commands, config options, API endpoints, usage examples)
-- Format as markdown and save to appropriate files in references/ or scripts/
+## Step 11: Summary
 
-Focus on extracting:
-- Command-line interface usage
-- Configuration options and examples
-- API endpoints and parameters
-- Common use cases and examples
-
-### If user chooses 3 (Clone from GitHub):
-
-Ask for the GitHub repository:
-```
-Enter GitHub repository (e.g., owner/repo):
-```
-
-Then:
-- Clone the repository to a temporary location
-- Look for README.md, docs/, examples/, scripts/ directories
-- Extract relevant content (installation instructions, usage examples, configuration samples)
-- Copy meaningful files to the skill's references/ or scripts/ directories
-- Clean up the temporary clone
-
-### If user chooses 4 (Copy from local path):
-
-Ask for the local path(s):
-```
-Enter local path(s) to copy from (comma separated):
-```
-
-Then:
-- Read files from the specified local paths
-- Validate they exist and are readable
-- Copy relevant content to references/ or scripts/
-- Warn if paths don't exist
-
-### If user chooses 1 (I'll write it myself):
-
-Generate helpful templates and placeholders based on the skill's purpose, not just empty files.
-
-After content is fetched/copied, show a brief summary:
-```
-Content imported:
-- <file1> (from <source>)
-- <file2> (from <source>)
-```
-
-If fetching fails (invalid URL, repo not found, path doesn't exist), show the error and ask the user to try again or write manually.
-
-## Step 9: Summary
-
-After all inputs are collected, show a brief summary:
+After all inputs are collected, show:
 
 ```
-Summary:
-- Name: <name>
-- Purpose: <purpose>
-- Trigger: <trigger>
-  - Tool: <tool-name> (if tool dispatch)
-- Dependency: <dependency>
-- Bins: <bins> (if any)
-- Env: <env vars> (if any)
-  - Primary: <primaryEnv> (if provided)
-- Config: <config paths> (if any)
-- OS: <os restrictions> (if any)
-- Location: <workspace|shared>
-- Files: SKILL.md, README.md<additional-files>
+Skill: <name>
+Task: <purpose>
+Triggers: <trigger conditions>
+Tools: <tool list>
+Workflow:
+  1. <step 1>
+  2. <step 2>
+  ...
+Output: <expected output>
+Constraints: <constraints>
+Location: <workspace|shared>
 
 Continue? [y/n]:
 ```
 
-Replace `<additional-files>` with the selected additional structure (e.g., ", scripts/, examples/").
+## Step 12: Preview
 
-## Step 10: Preview
+Generate the SKILL.md and show key sections:
+- Trigger conditions
+- Tools required
+- Workflow steps
+- Output format
 
-If user confirms, generate the content and show a preview. Keep it brief - just the key parts.
+## Step 13: Confirmation
 
-## Step 11: Confirmation
-
-After preview, ask:
+Ask:
 
 ```
 Write files? [y/n]:
 ```
 
-## Step 12: Write Files
+## Step 14: Write Files
 
 If confirmed:
 - Create the skill directory.
-- Write SKILL.md.
+- Write SKILL.md with full behavioral instructions.
 - Write README.md.
-- Create additional directories if selected (scripts/, examples/, templates/).
-- If directory exists, stop and ask whether to overwrite.
+- If directory exists, stop and ask.
 
-## Step 13: Completion
+## Step 15: Completion
 
-After writing, show:
+Show:
 
 ```
 Created: <path>
 
-Structure:
-- SKILL.md
-- README.md
-<additional-files>
-
-Dependencies:
-- Bins: <list> (if any)
-- Env: <list> (if any)
-  - Primary: <primaryEnv> (if any)
-- Config: <list> (if any)
-
 To activate:
 - Restart the agent, or
-- Run: refresh skills (if supported)
+- Run: refresh skills
 
 To test:
 - "<test prompt>"
@@ -320,207 +300,99 @@ To test:
 Done.
 ```
 
-- Show the skill path.
-- If dependencies exist, list them.
-- Show activation command (adapt to the agent's refresh mechanism).
-- Show one natural test prompt.
-- Keep it under 15 lines total.
-
 ## Full Guidance Mode
 
-In Full mode, after step 1, follow the same sequence but ask additional optional questions between steps:
+Full mode adds more detail at each step:
 
 After purpose:
-- "Target users? (optional, press Enter to skip)"
+- "Target users? (optional)"
+- "What problem does it solve? (detailed)"
 
-After trigger style:
-- "User-invocable? [y/n]"
-- If tool dispatch: "Tool name to dispatch to:"
+After trigger:
+- "Exact trigger phrases?"
+- "Any negative triggers (when NOT to use)?"
 
-After dependency:
-- "Required binaries? (comma separated, optional)"
-- "Environment variables? (comma separated, optional)"
-- "Required config paths? (comma separated, optional)"
-- "OS restrictions? (darwin/linux/win32, optional)"
-- If external API: "Primary API env var name? (optional, e.g. OPENAI_API_KEY)"
+After tools:
+- "Specific command versions?"
+- "Any setup required?"
 
-After install location:
-- "Homepage? (optional, press Enter to skip)"
-- "Emoji? (optional, press Enter to skip)"
+After workflow:
+- "Error handling?"
+- "Rollback steps?"
 
-After all standard questions:
-- "Additional files? (optional)"
+After output:
+- "Output format examples?"
+- "Where to save files?"
 
-If user asks for additional files, present options:
-
-```
-Additional files:
-
-1) None (SKILL.md + README.md only)
-2) With scripts/ directory
-3) With examples/ directory
-4) With scripts/ + examples/
-5) Full (scripts/ + examples/ + templates/)
-
-Choice [1]:
-```
-
-If user chooses 2-5, create the corresponding subdirectories and add appropriate placeholder files.
-
-## Default Values
-
-When user skips or is unsure:
-
-- trigger: 1 (Chat naturally)
-- tool name: (none, only if tool dispatch selected)
-- dependency: 1 (No extra dependency)
-- location: 1 (Current workspace)
-- name: auto-generate from purpose
-- user-invocable: true
+After constraints:
+- "Known issues?"
+- "Alternative approaches?"
 
 ## Writing Rules
 
-- Create `<skill-dir>/SKILL.md`
-- Create `<skill-dir>/README.md`
-- Do NOT create extra folders or scripts unless user explicitly asks.
-- Do NOT edit any config files automatically.
-- Do NOT run any activation commands automatically.
+### SKILL.md Structure
 
-### Additional Files Structure
-
-If user selects additional files, ask what they need and generate meaningful content.
-
-**references/** - Reference documentation (commonly used)
-- `<skill-name>-reference.md` - API/CLI reference documentation
-- `configuration.md` - Configuration guide and examples
-- `usage.md` - Usage examples and command reference
-
-**scripts/** - Helper scripts for the skill
-- `install.sh` - Installation script (if needed)
-- `setup.sh` - Setup script (if needed)
-- `run.sh` - Run script (if needed)
-
-**examples/** - Example files for users
-- `example-config.yaml` - Example configuration file
-- `example-input.json` - Example input file
-- `example-output.txt` - Example output
-
-**templates/** - Reusable templates
-- `prompt-template.md` - Template for prompts
-- `output-template.txt` - Template for outputs
-
-**bin/** - Executable files
-- Placeholder for binary executables the skill may need
-
-**license.txt** - License file
-- MIT, Apache 2.0, or other common open source licenses
-- Ask user which license they prefer
-
-Generate realistic placeholder content based on the skill's purpose, not just comments.
-
-### SKILL.md Frontmatter Rules
-
-Always include at minimum:
-- `name: <skill-name>`
-- `description: <description>`
-
-Include optional frontmatter only when relevant:
-- `user-invocable: true` — only if the user confirms
-- `disable-model-invocation: true` — only if the user confirms
-- `command-dispatch: tool` — only if tool dispatch mode
-- `command-tool: <name>` — only if tool dispatch mode
-- `command-arg-mode: raw` — only if tool dispatch mode
-- `homepage: <url>` — only if provided
-- `emoji: <emoji>` — only if provided
-
-If the skill has any gating requirements (bins, env, config, or OS), include metadata as a **single-line JSON object**:
-
-```yaml
-metadata: {"openclaw": {"requires": {"bins": ["cmd1"], "env": ["VAR_NAME"], "config": ["path.to.config"], "os": ["darwin"]}, "primaryEnv": "VAR_NAME"}}
-```
-
-The `primaryEnv` field should only be included if the user specifies a primary API key environment variable.
-
-Format the metadata on a single line. Do not multi-line YAML objects.
-
-### README.md Content
-
-Always include:
-- What the skill does
-- How to use it
-- Dependencies (if any) - including bins, env vars, config paths, OS restrictions
-- If primaryEnv is set: note which env var is the primary API key
-- How to activate it
-- How to test it
-
-If dependencies exist, include a "Requirements" section listing bins, env vars, config paths, and OS restrictions. Mark the primary API key env var if applicable.
-
-## Directory Targets
-
-- Workspace skill: `<workspace>/skills/<skill-name>/`
-- Shared skill: `~/.agent-skills/<skill-name>/` or the platform's shared skill directory
-
-If workspace path is unclear, inspect the environment before writing.
-
-## Generated Skill Format
-
-The generated skill directory should match the user's selected structure. By default, generate:
-
-```
-<skill-name>/
-  SKILL.md
-  README.md
-```
-
-If user selected additional files, include the corresponding directories:
-- `references/` - Reference documentation (config guides, API docs)
-- `scripts/` - Helper scripts
-- `examples/` - Example files
-- `templates/` - Reusable templates
-- `bin/` - Executable files
-- `license.txt` - License file
+A good SKILL.md should have:
 
 ```markdown
 ---
 name: <skill-name>
-description: <description>
-<optional frontmatter>
+description: <brief description>
 ---
 
 # <Skill Name>
 
-## Purpose
-
-...
-
 ## When To Use
 
-...
+- When user says "..."
+- When user wants to "..."
 
-## How To Use
+## Tools Required
 
-...
+- tool1: description
+- tool2: description
+
+## Workflow
+
+1. Step one - what to do
+2. Step two - what to do
+3. ...
+
+## Output
+
+- What files/config are produced
+- Expected format
+
+## Constraints
+
+- OS limitations
+- Prerequisites
+- What NOT to do
+
+## Examples
+
+Example usage scenarios
 ```
 
-### Optional Frontmatter
+### Key Principles
 
-Only include these if relevant:
+- Write **behavior**, not documentation
+- Be specific about tool usage
+- Define clear workflow steps
+- Specify exact output format
+- Include constraints and boundaries
 
-- `user-invocable: true`
-- `disable-model-invocation: true`
-- `command-dispatch: tool` (only if tool dispatch mode)
-- `command-tool: <tool-name>` (only if tool dispatch mode)
-- `command-arg-mode: raw` (only if tool dispatch mode)
+## Generated Skill Quality
 
-If the skill has dependencies (bins, env, config, or OS restrictions), include metadata:
+The generated skill should be **self-contained**:
+- Agent should know when to use it without asking
+- Agent should know what tools to call
+- Agent should know the exact workflow
+- Agent should know the expected output
 
-```yaml
-metadata: {"openclaw": {"requires": {"bins": [...], "env": [...], "config": [...], "os": [...]}}}
-```
-
-Write the body for an agent, not for an end user.
+If the agent still needs to search the web or figure out the workflow, the skill is not complete.
 
 ## Language
 
 - Use English by default.
-- If user clearly uses another language, switch to that language for all prompts and output.
+- If user clearly uses another language, switch to that language.
