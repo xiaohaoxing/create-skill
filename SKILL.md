@@ -141,15 +141,23 @@ After skill name, in Full mode, ask:
 Additional files:
 
 1) None (SKILL.md + README.md only)
-2) With scripts/ (helper scripts)
-3) With examples/ (sample files)
-4) With templates/ (reusable templates)
-5) Full (all of the above)
+2) With references/ (API docs, config examples)
+3) With scripts/ (helper scripts)
+4) With examples/ (sample files)
+5) With templates/ (reusable templates)
+6) With bin/ (executable files)
+7) With license.txt
+8) Full (all of the above)
 
 Choice [1]:
 ```
 
-If user chooses 2-5, ask what specific content they need:
+If user chooses 2-8, ask what specific content they need.
+
+For references:
+- "What reference docs? (e.g., API reference, config guide, CLI usage)"
+- Generate markdown files with realistic templates based on the skill's purpose
+- References are commonly used to document configuration options, API parameters, CLI commands, etc.
 
 For scripts:
 - "What helper scripts? (e.g., install, setup, run)"
@@ -308,6 +316,11 @@ When user skips or is unsure:
 
 If user selects additional files, ask what they need and generate meaningful content.
 
+**references/** - Reference documentation (commonly used)
+- `<skill-name>-reference.md` - API/CLI reference documentation
+- `configuration.md` - Configuration guide and examples
+- `usage.md` - Usage examples and command reference
+
 **scripts/** - Helper scripts for the skill
 - `install.sh` - Installation script (if needed)
 - `setup.sh` - Setup script (if needed)
@@ -321,6 +334,13 @@ If user selects additional files, ask what they need and generate meaningful con
 **templates/** - Reusable templates
 - `prompt-template.md` - Template for prompts
 - `output-template.txt` - Template for outputs
+
+**bin/** - Executable files
+- Placeholder for binary executables the skill may need
+
+**license.txt** - License file
+- MIT, Apache 2.0, or other common open source licenses
+- Ask user which license they prefer
 
 Generate realistic placeholder content based on the skill's purpose, not just comments.
 
@@ -378,7 +398,13 @@ The generated skill directory should match the user's selected structure. By def
   README.md
 ```
 
-If user selected additional files, include the corresponding directories.
+If user selected additional files, include the corresponding directories:
+- `references/` - Reference documentation (config guides, API docs)
+- `scripts/` - Helper scripts
+- `examples/` - Example files
+- `templates/` - Reusable templates
+- `bin/` - Executable files
+- `license.txt` - License file
 
 ```markdown
 ---
