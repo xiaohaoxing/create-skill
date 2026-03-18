@@ -38,7 +38,8 @@ Follow these steps in order:
 4. Prompt for dependency type.
 5. Prompt for install location.
 6. Prompt for skill name.
-7. Show summary.
+7. Prompt for additional files (if Full mode).
+8. Show summary.
 8. Show preview.
 9. Prompt for confirmation.
 10. Write files.
@@ -132,7 +133,25 @@ Skill name (lowercase, hyphenated):
 - Propose a name based on the skill purpose if user is unsure.
 - Validate format (lowercase, digits, hyphens only).
 
-## Step 7: Summary
+## Step 8: Additional Files (Full Mode)
+
+After skill name, in Full mode, ask:
+
+```
+Additional files:
+
+1) None (SKILL.md + README.md only)
+2) With scripts/ directory
+3) With examples/ directory
+4) With scripts/ + examples/
+5) Full (scripts/ + examples/ + templates/)
+
+Choice [1]:
+```
+
+Accept number, option text, or abbreviation.
+
+## Step 9: Summary
 
 After all inputs are collected, show a brief summary:
 
@@ -149,16 +168,18 @@ Summary:
 - Config: <config paths> (if any)
 - OS: <os restrictions> (if any)
 - Location: <workspace|shared>
-- Files: SKILL.md, README.md
+- Files: SKILL.md, README.md<additional-files>
 
 Continue? [y/n]:
 ```
 
-## Step 8: Preview
+Replace `<additional-files>` with the selected additional structure (e.g., ", scripts/, examples/").
+
+## Step 10: Preview
 
 If user confirms, generate the content and show a preview. Keep it brief - just the key parts.
 
-## Step 9: Confirmation
+## Step 11: Confirmation
 
 After preview, ask:
 
@@ -166,20 +187,26 @@ After preview, ask:
 Write files? [y/n]:
 ```
 
-## Step 10: Write Files
+## Step 12: Write Files
 
 If confirmed:
 - Create the skill directory.
 - Write SKILL.md.
 - Write README.md.
+- Create additional directories if selected (scripts/, examples/, templates/).
 - If directory exists, stop and ask whether to overwrite.
 
-## Step 11: Completion
+## Step 13: Completion
 
 After writing, show:
 
 ```
 Created: <path>
+
+Structure:
+- SKILL.md
+- README.md
+<additional-files>
 
 Dependencies:
 - Bins: <list> (if any)
@@ -225,7 +252,24 @@ After install location:
 - "Homepage? (optional, press Enter to skip)"
 - "Emoji? (optional, press Enter to skip)"
 
-Skip any question if user indicates it's not needed.
+After all standard questions:
+- "Additional files? (optional)"
+
+If user asks for additional files, present options:
+
+```
+Additional files:
+
+1) None (SKILL.md + README.md only)
+2) With scripts/ directory
+3) With examples/ directory
+4) With scripts/ + examples/
+5) Full (scripts/ + examples/ + templates/)
+
+Choice [1]:
+```
+
+If user chooses 2-5, create the corresponding subdirectories and add appropriate placeholder files.
 
 ## Default Values
 
@@ -245,6 +289,54 @@ When user skips or is unsure:
 - Do NOT create extra folders or scripts unless user explicitly asks.
 - Do NOT edit any config files automatically.
 - Do NOT run any activation commands automatically.
+
+### Additional Files Structure
+
+If user selects additional files:
+
+**Option 2: With scripts/**
+```
+<skill-dir>/
+  SKILL.md
+  README.md
+  scripts/
+    .gitkeep
+```
+
+**Option 3: With examples/**
+```
+<skill-dir>/
+  SKILL.md
+  README.md
+  examples/
+    .gitkeep
+```
+
+**Option 4: With scripts/ + examples/**
+```
+<skill-dir>/
+  SKILL.md
+  README.md
+  scripts/
+    .gitkeep
+  examples/
+    .gitkeep
+```
+
+**Option 5: Full structure**
+```
+<skill-dir>/
+  SKILL.md
+  README.md
+  scripts/
+    .gitkeep
+  examples/
+    .gitkeep
+  templates/
+    .gitkeep
+```
+
+Create placeholder `.gitkeep` files in empty directories so they are tracked by git.
 
 ### SKILL.md Frontmatter Rules
 
@@ -292,7 +384,15 @@ If workspace path is unclear, inspect the environment before writing.
 
 ## Generated Skill Format
 
-The generated SKILL.md should follow the AgentSkills format:
+The generated skill directory should match the user's selected structure. By default, generate:
+
+```
+<skill-name>/
+  SKILL.md
+  README.md
+```
+
+If user selected additional files, include the corresponding directories.
 
 ```markdown
 ---
