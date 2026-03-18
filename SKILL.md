@@ -79,10 +79,19 @@ How do users trigger it?
 
 1) Chat naturally
 2) As a command (/)
-3) Not sure
+3) Tool dispatch (direct to tool)
+4) Not sure
 
 Choice [1]:
 ```
+
+If user chooses 3 (Tool dispatch), then ask:
+
+```
+Tool name to dispatch to:
+```
+
+Accept the tool name. This is required for tool dispatch mode.
 
 ## Step 4: Dependency Type
 
@@ -132,7 +141,13 @@ Summary:
 - Name: <name>
 - Purpose: <purpose>
 - Trigger: <trigger>
+  - Tool: <tool-name> (if tool dispatch)
 - Dependency: <dependency>
+- Bins: <bins> (if any)
+- Env: <env vars> (if any)
+  - Primary: <primaryEnv> (if provided)
+- Config: <config paths> (if any)
+- OS: <os restrictions> (if any)
 - Location: <workspace|shared>
 - Files: SKILL.md, README.md
 
@@ -166,6 +181,12 @@ After writing, show:
 ```
 Created: <path>
 
+Dependencies:
+- Bins: <list> (if any)
+- Env: <list> (if any)
+  - Primary: <primaryEnv> (if any)
+- Config: <list> (if any)
+
 To activate:
 - Restart the agent, or
 - Run: refresh skills (if supported)
@@ -177,9 +198,10 @@ Done.
 ```
 
 - Show the skill path.
+- If dependencies exist, list them.
 - Show activation command (adapt to the agent's refresh mechanism).
 - Show one natural test prompt.
-- Keep it under 10 lines total.
+- Keep it under 15 lines total.
 
 ## Full Guidance Mode
 
@@ -190,11 +212,14 @@ After purpose:
 
 After trigger style:
 - "User-invocable? [y/n]"
+- If tool dispatch: "Tool name to dispatch to:"
 
 After dependency:
 - "Required binaries? (comma separated, optional)"
 - "Environment variables? (comma separated, optional)"
+- "Required config paths? (comma separated, optional)"
 - "OS restrictions? (darwin/linux/win32, optional)"
+- If external API: "Primary API env var name? (optional, e.g. OPENAI_API_KEY)"
 
 After install location:
 - "Homepage? (optional, press Enter to skip)"
@@ -207,6 +232,7 @@ Skip any question if user indicates it's not needed.
 When user skips or is unsure:
 
 - trigger: 1 (Chat naturally)
+- tool name: (none, only if tool dispatch selected)
 - dependency: 1 (No extra dependency)
 - location: 1 (Current workspace)
 - name: auto-generate from purpose
@@ -219,6 +245,43 @@ When user skips or is unsure:
 - Do NOT create extra folders or scripts unless user explicitly asks.
 - Do NOT edit any config files automatically.
 - Do NOT run any activation commands automatically.
+
+### SKILL.md Frontmatter Rules
+
+Always include at minimum:
+- `name: <skill-name>`
+- `description: <description>`
+
+Include optional frontmatter only when relevant:
+- `user-invocable: true` — only if the user confirms
+- `disable-model-invocation: true` — only if the user confirms
+- `command-dispatch: tool` — only if tool dispatch mode
+- `command-tool: <name>` — only if tool dispatch mode
+- `command-arg-mode: raw` — only if tool dispatch mode
+- `homepage: <url>` — only if provided
+- `emoji: <emoji>` — only if provided
+
+If the skill has any gating requirements (bins, env, config, or OS), include metadata as a **single-line JSON object**:
+
+```yaml
+metadata: {"openclaw": {"requires": {"bins": ["cmd1"], "env": ["VAR_NAME"], "config": ["path.to.config"], "os": ["darwin"]}, "primaryEnv": "VAR_NAME"}}
+```
+
+The `primaryEnv` field should only be included if the user specifies a primary API key environment variable.
+
+Format the metadata on a single line. Do not multi-line YAML objects.
+
+### README.md Content
+
+Always include:
+- What the skill does
+- How to use it
+- Dependencies (if any) - including bins, env vars, config paths, OS restrictions
+- If primaryEnv is set: note which env var is the primary API key
+- How to activate it
+- How to test it
+
+If dependencies exist, include a "Requirements" section listing bins, env vars, config paths, and OS restrictions. Mark the primary API key env var if applicable.
 
 ## Directory Targets
 
@@ -235,6 +298,7 @@ The generated SKILL.md should follow the AgentSkills format:
 ---
 name: <skill-name>
 description: <description>
+<optional frontmatter>
 ---
 
 # <Skill Name>
@@ -252,11 +316,23 @@ description: <description>
 ...
 ```
 
-The generated README.md should be human-readable and include:
-- What the skill does
-- How to use it
-- Dependencies
-- How to activate it for the current agent
+### Optional Frontmatter
+
+Only include these if relevant:
+
+- `user-invocable: true`
+- `disable-model-invocation: true`
+- `command-dispatch: tool` (only if tool dispatch mode)
+- `command-tool: <tool-name>` (only if tool dispatch mode)
+- `command-arg-mode: raw` (only if tool dispatch mode)
+
+If the skill has dependencies (bins, env, config, or OS restrictions), include metadata:
+
+```yaml
+metadata: {"openclaw": {"requires": {"bins": [...], "env": [...], "config": [...], "os": [...]}}}
+```
+
+Write the body for an agent, not for an end user.
 
 ## Language
 
