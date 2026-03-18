@@ -39,7 +39,8 @@ Follow these steps in order:
 5. Prompt for install location.
 6. Prompt for skill name.
 7. Prompt for additional files (if Full mode).
-8. Show summary.
+8. Prompt for content sources (if references/scripts selected).
+9. Show summary.
 8. Show preview.
 9. Prompt for confirmation.
 10. Write files.
@@ -172,6 +173,79 @@ For templates:
 - Accept comma-separated list or natural language
 
 Generate meaningful placeholder files based on user's needs, not just empty directories.
+
+## Step 8b: Content Sources (Full Mode)
+
+If user selected references/ or scripts/, ask where to get the content:
+
+```
+Where should I get the content from?
+
+1) I'll write it myself
+2) Fetch from URL
+3) Clone from GitHub
+4) Copy from local path
+
+Choice [1]:
+```
+
+### If user chooses 2 (Fetch from URL):
+
+Ask for the URL(s):
+```
+Enter URL(s) to fetch from (comma separated):
+```
+
+Then use the available tools (web_fetch) to:
+- Fetch the content from each URL
+- Extract key information (CLI commands, config options, API endpoints, usage examples)
+- Format as markdown and save to appropriate files in references/ or scripts/
+
+Focus on extracting:
+- Command-line interface usage
+- Configuration options and examples
+- API endpoints and parameters
+- Common use cases and examples
+
+### If user chooses 3 (Clone from GitHub):
+
+Ask for the GitHub repository:
+```
+Enter GitHub repository (e.g., owner/repo):
+```
+
+Then:
+- Clone the repository to a temporary location
+- Look for README.md, docs/, examples/, scripts/ directories
+- Extract relevant content (installation instructions, usage examples, configuration samples)
+- Copy meaningful files to the skill's references/ or scripts/ directories
+- Clean up the temporary clone
+
+### If user chooses 4 (Copy from local path):
+
+Ask for the local path(s):
+```
+Enter local path(s) to copy from (comma separated):
+```
+
+Then:
+- Read files from the specified local paths
+- Validate they exist and are readable
+- Copy relevant content to references/ or scripts/
+- Warn if paths don't exist
+
+### If user chooses 1 (I'll write it myself):
+
+Generate helpful templates and placeholders based on the skill's purpose, not just empty files.
+
+After content is fetched/copied, show a brief summary:
+```
+Content imported:
+- <file1> (from <source>)
+- <file2> (from <source>)
+```
+
+If fetching fails (invalid URL, repo not found, path doesn't exist), show the error and ask the user to try again or write manually.
 
 ## Step 9: Summary
 
