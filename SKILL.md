@@ -141,15 +141,29 @@ After skill name, in Full mode, ask:
 Additional files:
 
 1) None (SKILL.md + README.md only)
-2) With scripts/ directory
-3) With examples/ directory
-4) With scripts/ + examples/
-5) Full (scripts/ + examples/ + templates/)
+2) With scripts/ (helper scripts)
+3) With examples/ (sample files)
+4) With templates/ (reusable templates)
+5) Full (all of the above)
 
 Choice [1]:
 ```
 
-Accept number, option text, or abbreviation.
+If user chooses 2-5, ask what specific content they need:
+
+For scripts:
+- "What helper scripts? (e.g., install, setup, run)"
+- Accept comma-separated list or natural language
+
+For examples:
+- "What example files? (e.g., config, input, output)"
+- Accept comma-separated list or natural language
+
+For templates:
+- "What template files? (e.g., prompt template, output template)"
+- Accept comma-separated list or natural language
+
+Generate meaningful placeholder files based on user's needs, not just empty directories.
 
 ## Step 9: Summary
 
@@ -292,51 +306,23 @@ When user skips or is unsure:
 
 ### Additional Files Structure
 
-If user selects additional files:
+If user selects additional files, ask what they need and generate meaningful content.
 
-**Option 2: With scripts/**
-```
-<skill-dir>/
-  SKILL.md
-  README.md
-  scripts/
-    .gitkeep
-```
+**scripts/** - Helper scripts for the skill
+- `install.sh` - Installation script (if needed)
+- `setup.sh` - Setup script (if needed)
+- `run.sh` - Run script (if needed)
 
-**Option 3: With examples/**
-```
-<skill-dir>/
-  SKILL.md
-  README.md
-  examples/
-    .gitkeep
-```
+**examples/** - Example files for users
+- `example-config.yaml` - Example configuration file
+- `example-input.json` - Example input file
+- `example-output.txt` - Example output
 
-**Option 4: With scripts/ + examples/**
-```
-<skill-dir>/
-  SKILL.md
-  README.md
-  scripts/
-    .gitkeep
-  examples/
-    .gitkeep
-```
+**templates/** - Reusable templates
+- `prompt-template.md` - Template for prompts
+- `output-template.txt` - Template for outputs
 
-**Option 5: Full structure**
-```
-<skill-dir>/
-  SKILL.md
-  README.md
-  scripts/
-    .gitkeep
-  examples/
-    .gitkeep
-  templates/
-    .gitkeep
-```
-
-Create placeholder `.gitkeep` files in empty directories so they are tracked by git.
+Generate realistic placeholder content based on the skill's purpose, not just comments.
 
 ### SKILL.md Frontmatter Rules
 
